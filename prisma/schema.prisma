@@ -1,0 +1,97 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Tabela de Administradores
+model Admin {
+  id_admin   Int      @id @default(autoincrement())
+  nome       String   @db.VarChar(100)
+  senha      String   @db.VarChar(255)
+  created_at DateTime @default(now()) @db.Timestamp(6)
+
+  @@map("admin")
+}
+
+// Tabela de Alunos
+model Aluno {
+  id_aluno              Int      @id @default(autoincrement())
+  matricula             String   @unique @db.VarChar(20)
+  senha                 String?  @db.VarChar(255)
+  nome                  String   @db.VarChar(100)
+  curso                 String   @db.VarChar(100)
+  total_livros_alugados Int      @default(0)
+  total_livros_lidos    Int      @default(0)
+  genero_mais_lido      String?  @db.VarChar(50)
+  created_at            DateTime @default(now()) @db.Timestamp(6)
+
+  // Relacionamentos
+  pendencias Pendencias[]
+  reservas   Reservas[]
+
+  @@map("aluno")
+}
+
+// Tabela de Livros
+model Livro {
+  id_livro              Int      @id @default(autoincrement())
+  nome                  String   @db.VarChar(200)
+  genero                String   @db.VarChar(50)
+  quantidade_disponivel Int      @default(0)
+  quantidade_total      Int      @default(0)
+  quantidade_alugada    Int      @default(0)
+  autor                 String   @db.VarChar(100)
+  disponibilidade       Boolean  @default(true)
+  created_at            DateTime @default(now()) @db.Timestamp(6)
+
+  // Relacionamentos
+  pendencias Pendencias[]
+  reservas   Reservas[]
+
+  @@map("livro")
+}
+
+// Tabela de Pendências
+model Pendencias {
+  id_pendencia          Int      @id @default(autoincrement())
+  id_aluno              Int
+  id_livro              Int
+  curso_aluno           String   @db.VarChar(100)
+  ano                   Int
+  nome_livro_pendente   String   @db.VarChar(200)
+  dias_atraso           Int      @default(0)
+  data_emprestimo       DateTime @db.Date
+  data_devolucao_prevista DateTime @db.Date
+  status                String   @default("pendente") @db.VarChar(20)
+  created_at            DateTime @default(now()) @db.Timestamp(6)
+
+  // Relacionamentos
+  aluno Aluno @relation(fields: [id_aluno], references: [id_aluno], onDelete: Cascade)
+  livro Livro @relation(fields: [id_livro], references: [id_livro], onDelete: Cascade)
+
+  @@map("pendencias")
+}
+
+// Tabela de Reservas
+model Reservas {
+  id_reserva            Int      @id @default(autoincrement())
+  id_aluno              Int
+  id_livro              Int
+  data_reserva          DateTime @default(now()) @db.Timestamp(6)
+  data_devolucao_prevista DateTime @db.Date
+  status                String   @default("reservado") @db.VarChar(20)
+  created_at            DateTime @default(now()) @db.Timestamp(6)
+
+  // Relacionamentos
+  aluno Aluno @relation(fields: [id_aluno], references: [id_aluno], onDelete: Cascade)
+  livro Livro @relation(fields: [id_livro], references: [id_livro], onDelete: Cascade)
+
+  @@map("reservas")
+}

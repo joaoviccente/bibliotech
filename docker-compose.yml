@@ -1,0 +1,38 @@
+services:
+  database:
+    image: bitnami/postgresql:latest
+    container_name: bibliotech_db
+    ports:
+      - '5432:5432'
+    environment:
+      - POSTGRESQL_USERNAME=${POSTGRES_USER}
+      - POSTGRESQL_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRESQL_DATABASE=${POSTGRES_DB}
+      - POSTGRESQL_POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/bitnami/postgresql
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    restart: unless-stopped
+    networks:
+      - bibliotech_network
+
+  # Opcional: PgAdmin para administração do banco
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    container_name: bibliotech_pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@bibliotech.com
+      - PGADMIN_DEFAULT_PASSWORD=admin123
+    ports:
+      - '8080:80'
+    depends_on:
+      - database
+    networks:
+      - bibliotech_network
+
+volumes:
+  postgres_data:
+
+networks:
+  bibliotech_network:
+    driver: bridge

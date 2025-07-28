@@ -1,36 +1,194 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://github.com/vercel/next.js/tree/canary/packages/create-next-app).
+# BiblioTech - Sistema de Gerenciamento de Biblioteca Escolar
 
-## Getting Started
+Sistema web desenvolvido para automatizar o processo de aluguel de livros em bibliotecas de escolas profissionais (EEEPs) do estado do Ceará, otimizando o trabalho dos bibliotecários e incentivando a leitura entre os alunos.
 
-First, run the development server:
+## 🚀 Tecnologias Utilizadas
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Frontend**: Next.js 15 (App Router)
+- **Linguagem**: JavaScript
+- **Estilização**: Tailwind CSS
+- **Banco de Dados**: PostgreSQL
+- **Containerização**: Docker & Docker Compose
+- **HTTP Client**: Axios
+- **Versionamento**: Git
+
+## 📋 Funcionalidades
+
+### Para Alunos
+- ✅ Cadastro de senha inicial
+- ✅ Login seguro com matrícula e senha
+- 📚 Busca e reserva de livros
+- 📖 Visualização de "Meus Livros" (reservados/emprestados)
+- 🏆 Ranking de leitores
+- 📱 Interface responsiva e intuitiva
+
+### Para Administradores/Bibliotecários
+- ✅ Login administrativo
+- 📊 Dashboard com estatísticas
+- 📋 Gerenciamento de empréstimos e reservas
+- 👥 Gestão de alunos
+- 📚 Cadastro e controle de livros
+- ⚠️ Controle de pendências e atrasos
+
+## 🏗️ Arquitetura do Projeto
+
+```
+src/
+├── app/                    # App Router (Next.js)
+│   ├── login/             # Página de login
+│   ├── cadastrar-senha/   # Cadastro de senha do aluno
+│   ├── dashboard/         # Dashboard do aluno
+│   ├── admin/             # Área administrativa
+│   └── layout.js          # Layout principal
+├── components/            # Componentes reutilizáveis
+│   ├── Layout.js          # Layout base
+│   ├── Loading.js         # Componentes de loading
+│   └── Alert.js           # Sistema de alertas
+└── services/              # Camada de serviços
+    ├── api.js             # Configuração do Axios
+    ├── alunos.service.js  # Serviços de alunos
+    ├── livros.service.js  # Serviços de livros
+    ├── auth.service.js    # Autenticação
+    └── pendencias.service.js # Pendências
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🗃️ Banco de Dados
 
-You can start editing the page by modifying `app/page.js`. The page auto-updates as you edit the file.
+### Entidades Principais
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Aluno**: Usuários estudantes do sistema
+2. **Admin**: Administradores/bibliotecários
+3. **Livro**: Acervo da biblioteca
+4. **Reservas**: Controle de reservas de livros
+5. **Pendências**: Registros de atrasos e pendências
 
-## Learn More
+## 🚀 Como Executar
 
-To learn more about Next.js, take a look at the following resources:
+### Pré-requisitos
+- Node.js 18+ 
+- Docker e Docker Compose
+- Git
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+### Passo a Passo
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+1. **Clone o repositório**
+```bash
+git clone <repository-url>
+cd projeto_web
+```
 
-## Deploy on Vercel
+2. **Instale as dependências**
+```bash
+npm install
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+3. **Configure o ambiente**
+```bash
+# O arquivo .env já está configurado com as credenciais padrão
+# Verifique se as configurações estão corretas para seu ambiente
+```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4. **Inicie o banco de dados**
+```bash
+docker-compose up -d database
+```
+
+5. **Execute a aplicação**
+```bash
+npm run dev
+```
+
+6. **Acesse o sistema**
+- Aplicação: http://localhost:3000
+- PgAdmin (opcional): http://localhost:8080
+
+### Credenciais Padrão
+
+**Administrador:**
+- Nome: Bibliotecário Principal
+- Senha: (configurar no banco)
+
+**Alunos de Teste:**
+- Matrícula: 2023001 (João Silva - Informática)
+- Matrícula: 2023002 (Maria Santos - Administração)
+
+## 🎨 Design System
+
+O sistema segue os padrões visuais dos sistemas do Governo do Estado do Ceará:
+
+- **Cores**: Paleta azul oficial das EEEPs
+- **Tipografia**: Fonte Sans-serif limpa e legível
+- **Layout**: Design clean e profissional
+- **Responsividade**: Compatível com desktops e tablets
+
+## 📊 Regras de Negócio
+
+### Autenticação
+- Alunos fazem login com matrícula e senha
+- Primeiro acesso requer cadastro de senha
+- Administradores usam nome de usuário e senha
+
+### Reservas
+- Livros só podem ser reservados se disponíveis
+- Não é permitido reservar o mesmo livro duas vezes
+- Status: reservado → retirado → devolvido
+
+### Pendências
+- Calculadas automaticamente baseado na data de devolução
+- Alertas visuais para livros em atraso
+- Histórico completo de empréstimos
+
+## 🛠️ Scripts Disponíveis
+
+```bash
+npm run dev          # Desenvolvimento
+npm run build        # Build de produção
+npm run start        # Produção
+npm run lint         # Verificação de código
+```
+
+## 🔧 Configuração do Docker
+
+O arquivo `docker-compose.yml` inclui:
+- **PostgreSQL**: Banco de dados principal
+- **PgAdmin**: Interface web para administração do banco
+
+## 📝 API Services
+
+Todos os serviços estão organizados na pasta `src/services/`:
+- **API Base**: Configuração centralizada do Axios
+- **Interceptors**: Tratamento automático de tokens e erros
+- **Serviços por Entidade**: Métodos organizados por funcionalidade
+
+## 🔒 Segurança
+
+- Autenticação baseada em JWT
+- Validação de dados no frontend
+- Sanitização de entradas
+- Controle de acesso por tipo de usuário
+
+## 📱 Responsividade
+
+- Design mobile-first
+- Breakpoints otimizados
+- Interface adaptável para diferentes tamanhos de tela
+
+## 🤝 Contribuição
+
+1. Fork o projeto
+2. Crie uma branch para sua feature (`git checkout -b feature/AmazingFeature`)
+3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
+4. Push para a branch (`git push origin feature/AmazingFeature`)
+5. Abra um Pull Request
+
+## 📄 Licença
+
+Este projeto foi desenvolvido para as Escolas Estaduais de Educação Profissional (EEEPs) do Estado do Ceará.
+
+## 📞 Suporte
+
+Para dúvidas ou suporte técnico, entre em contato com a equipe de desenvolvimento da EEEP.
+
+---
+
+**BiblioTech** - Democratizando o acesso ao conhecimento através da tecnologia 📚✨
