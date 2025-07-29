@@ -70,7 +70,8 @@ const livrosService = {
    * @param {boolean} apenasDisponiveis - Se true, retorna apenas livros com quantidade > 0
    * @returns {Promise} Lista de livros disponíveis
    */
-  async buscarDisponiveis(apenasDisponiveis = false) {
+  async buscarDisponiveis(apenasDisponiveis) {
+    debugger
     try {
       const params = apenasDisponiveis ? '?disponivel_apenas=true' : '';
       const response = await api.get(`/livros/disponiveis${params}`);

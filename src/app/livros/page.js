@@ -28,6 +28,7 @@ export default function LivrosPage() {
   const router = useRouter();
 
   const loadLivros = useCallback(async () => {
+    
     try {
       const livrosData = await livrosService.buscarDisponiveis(filtros.disponivel);
       setLivros(livrosData);
@@ -62,6 +63,7 @@ export default function LivrosPage() {
   }, [router, loadLivros]);
 
   const aplicarFiltros = useCallback(() => {
+    
     let resultado = [...livros];
 
     // Filtro por busca (nome, autor, gênero)
@@ -87,6 +89,7 @@ export default function LivrosPage() {
   // Recarregar livros quando o filtro de disponibilidade mudar
   useEffect(() => {
     if (user) {
+      
       loadLivros();
     }
   }, [filtros.disponivel, loadLivros, user]);
@@ -183,25 +186,6 @@ export default function LivrosPage() {
                   className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-white focus:border-gray-300 text-gray-900 placeholder-gray-500"
                   placeholder="Buscar livros por título, autor, gênero"
                 />
-              </div>
-            </div>
-
-            {/* Status Filter */}
-            <div>
-              <label className="block text-black text-sm font-bold mb-2 bg-opacity-50 px-2 py-1 rounded">
-                Status
-              </label>
-              <div className="flex items-center bg-opacity-50 rounded-lg px-4 py-3 border border-white border-opacity-30">
-                <input
-                  id="disponivel"
-                  type="checkbox"
-                  checked={filtros.disponivel}
-                  onChange={(e) => setFiltros(prev => ({ ...prev, disponivel: e.target.checked }))}
-                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
-                />
-                <label htmlFor="disponivel" className="ml-2 text-gray-500 text-sm">
-                  Mostrar apenas livros disponíveis
-                </label>
               </div>
             </div>
           </div>

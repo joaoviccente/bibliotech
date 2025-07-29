@@ -5,13 +5,14 @@ const router = express.Router();
 
 // Buscar todos os livros (com opção de filtrar por disponibilidade)
 router.get('/disponiveis', authMiddleware, async (req, res) => {
+  
   try {
     const { disponivel_apenas } = req.query;
     
     let whereClause = { disponibilidade: true };
     
     // Se o parâmetro disponivel_apenas for 'true', filtrar apenas livros com quantidade > 0
-    if (disponivel_apenas === 'true') {
+    if (disponivel_apenas === 'false') {
       whereClause.quantidade_disponivel = { gt: 0 };
     }
 
