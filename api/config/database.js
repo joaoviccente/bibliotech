@@ -2,10 +2,10 @@ const { Pool } = require('pg');
 require('dotenv').config();
 
 const pool = new Pool({
-  user: process.env.DB_USER || 'postgres',
+  user: process.env.POSTGRES_USER || 'bibliotech_user',
   host: process.env.DB_HOST || 'localhost',
-  database: process.env.DB_NAME || 'bibliotech',
-  password: process.env.DB_PASSWORD || 'biblioteca123',
+  database: process.env.POSTGRES_DB || 'bibliotech_db',
+  password: process.env.POSTGRES_PASSWORD || 'bibliotech_pass',
   port: process.env.DB_PORT || 5432,
 });
 

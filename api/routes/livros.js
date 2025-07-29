@@ -3,11 +3,20 @@ const prisma = require('../config/prisma');
 const { authMiddleware, isAluno } = require('../middleware/auth');
 const router = express.Router();
 
-// Buscar livros disponíveis
+// Buscar todos os livros (com opção de filtrar por disponibilidade)
 router.get('/disponiveis', authMiddleware, async (req, res) => {
   try {
+    const { disponivel_apenas } = req.query;
+    
+    let whereClause = { disponibilidade: true };
+    
+    // Se o parâmetro disponivel_apenas for 'true', filtrar apenas livros com quantidade > 0
+    if (disponivel_apenas === 'true') {
+      whereClause.quantidade_disponivel = { gt: 0 };
+    }
+
     const livros = await prisma.livro.findMany({
-      where: { disponibilidade: true },
+      where: whereClause,
       select: {
         id_livro: true,
         nome: true,
@@ -173,7 +182,9 @@ router.patch('/concluir/:id_reserva', authMiddleware, isAluno, async (req, res) 
       where: {
         id_reserva: parseInt(id_reserva),
         id_aluno: parseInt(id_aluno),
-        status: 'reservado'
+        status: {
+          in: ['reservado', 'emprestado']
+        }
       }
     });
 

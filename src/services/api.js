@@ -2,7 +2,7 @@ import axios from 'axios';
 
 // Configuração base do Axios
 const api = axios.create({
-  baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:3001/api',
+  baseURL: 'http://localhost:3001/api',
   timeout: 10000,
   headers: {
     'Content-Type': 'application/json',
@@ -31,6 +31,7 @@ api.interceptors.response.use(
     return response;
   },
   (error) => {
+    console.error('Erro na API:', error.response?.data || error.message);
     if (error.response?.status === 401) {
       // Token expirado ou inválido
       if (typeof window !== 'undefined') {

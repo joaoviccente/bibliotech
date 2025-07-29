@@ -67,11 +67,13 @@ const livrosService = {
 
   /**
    * Buscar livros disponíveis
+   * @param {boolean} apenasDisponiveis - Se true, retorna apenas livros com quantidade > 0
    * @returns {Promise} Lista de livros disponíveis
    */
-  async buscarDisponiveis() {
+  async buscarDisponiveis(apenasDisponiveis = false) {
     try {
-      const response = await api.get('/livros/disponiveis');
+      const params = apenasDisponiveis ? '?disponivel_apenas=true' : '';
+      const response = await api.get(`/livros/disponiveis${params}`);
       return response.data;
     } catch (error) {
       console.error('Erro ao buscar livros disponíveis:', error);

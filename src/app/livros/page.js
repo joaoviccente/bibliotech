@@ -15,7 +15,6 @@ export default function LivrosPage() {
   const [isReserving, setIsReserving] = useState({});
   const [filtros, setFiltros] = useState({
     busca: '',
-    genero: 'todos',
     disponivel: true
   });
   const [user, setUser] = useState(null);
@@ -30,14 +29,14 @@ export default function LivrosPage() {
 
   const loadLivros = useCallback(async () => {
     try {
-      const livrosData = await livrosService.buscarDisponiveis();
+      const livrosData = await livrosService.buscarDisponiveis(filtros.disponivel);
       setLivros(livrosData);
       setLivrosFiltrados(livrosData);
     } catch (error) {
       console.error('Erro ao carregar livros:', error);
       // Em caso de erro, poderemos mostrar uma mensagem de erro local
     }
-  }, []);
+  }, [filtros.disponivel]);
 
   useEffect(() => {
     const checkAuthAndLoadData = async () => {
@@ -75,22 +74,22 @@ export default function LivrosPage() {
       );
     }
 
-    // Filtro por gênero
-    if (filtros.genero !== 'todos') {
-      resultado = resultado.filter(livro => livro.genero === filtros.genero);
-    }
-
-    // Filtro por disponibilidade
-    if (filtros.disponivel) {
-      resultado = resultado.filter(livro => livro.disponibilidade && livro.quantidade_disponivel > 0);
-    }
+    // O filtro por disponibilidade agora é feito na API
+    // Removido daqui para evitar filtro duplo
 
     setLivrosFiltrados(resultado);
-  }, [filtros, livros]);
+  }, [filtros.busca, livros]);
 
   useEffect(() => {
     aplicarFiltros();
   }, [aplicarFiltros]);
+
+  // Recarregar livros quando o filtro de disponibilidade mudar
+  useEffect(() => {
+    if (user) {
+      loadLivros();
+    }
+  }, [filtros.disponivel, loadLivros, user]);
 
   const handleReservar = async (livro) => {
     if (!user) return;
@@ -149,143 +148,138 @@ export default function LivrosPage() {
     setModalMessage('');
   };
 
-  const generos = [...new Set(livros.map(livro => livro.genero))];
-
   if (isLoading) {
     return <Loading message="Carregando livros..." />;
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Buscar e Reservar Livros 📚
-        </h1>
-        <p className="text-gray-600 mt-1">
-          Encontre o livro perfeito para sua próxima leitura
-        </p>
-      </div>
+    <div className="bg-gradient-to-br from-green-600 to-green-700 min-h-screen">
+      {/* Header Section */}
+      <div className="px-6 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">
+            Buscar Livros
+          </h1>
+        </div>
 
-      {/* Filtros */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* Busca */}
-          <div>
-            <label htmlFor="busca" className="block text-sm font-medium text-gray-700 mb-2">
-              Buscar
-            </label>
-            <input
-              id="busca"
-              type="text"
-              value={filtros.busca}
-              onChange={(e) => setFiltros(prev => ({ ...prev, busca: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 placeholder-gray-700 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-              placeholder="Nome, autor ou gênero..."
-            />
-          </div>
-
-          {/* Gênero */}
-          <div>
-            <label htmlFor="genero" className="block text-sm font-medium text-gray-700 mb-2">
-              Gênero
-            </label>
-            <select
-              id="genero"
-              value={filtros.genero}
-              onChange={(e) => setFiltros(prev => ({ ...prev, genero: e.target.value }))}
-              className="w-full px-3 py-2 border border-gray-300 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="todos">Todos os gêneros</option>
-              {generos.map(genero => (
-                <option key={genero} value={genero}>{genero}</option>
-              ))}
-            </select>
-          </div>
-
-          {/* Disponibilidade */}
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
-              Filtros
-            </label>
-            <div className="flex items-center">
-              <input
-                id="disponivel"
-                type="checkbox"
-                checked={filtros.disponivel}
-                onChange={(e) => setFiltros(prev => ({ ...prev, disponivel: e.target.checked }))}
-                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-              />
-              <label htmlFor="disponivel" className="ml-2 text-sm text-gray-700">
-                Apenas disponíveis
+        {/* Search Section - Improved Layout */}
+        <div className="bg-white bg-opacity-30 backdrop-blur rounded-xl p-6 mb-8 border border-white border-opacity-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Search Input */}
+            <div>
+              <label className="block text-black text-sm font-bold mb-2 bg-opacity-50 px-2 py-1 rounded">
+                Pesquisar
               </label>
+              <div className="relative">
+                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                </div>
+                <input
+                  type="text"
+                  value={filtros.busca}
+                  onChange={(e) => setFiltros(prev => ({ ...prev, busca: e.target.value }))}
+                  className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-white focus:border-gray-300 text-gray-900 placeholder-gray-500"
+                  placeholder="Buscar livros por título, autor, gênero"
+                />
+              </div>
+            </div>
+
+            {/* Status Filter */}
+            <div>
+              <label className="block text-black text-sm font-bold mb-2 bg-opacity-50 px-2 py-1 rounded">
+                Status
+              </label>
+              <div className="flex items-center bg-opacity-50 rounded-lg px-4 py-3 border border-white border-opacity-30">
+                <input
+                  id="disponivel"
+                  type="checkbox"
+                  checked={filtros.disponivel}
+                  onChange={(e) => setFiltros(prev => ({ ...prev, disponivel: e.target.checked }))}
+                  className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                />
+                <label htmlFor="disponivel" className="ml-2 text-gray-500 text-sm">
+                  Mostrar apenas livros disponíveis
+                </label>
+              </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Resultados */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-6">
-          <h2 className="text-lg font-semibold text-gray-900">
-            Livros Encontrados ({livrosFiltrados.length})
-          </h2>
+      {/* Results Section */}
+      <div className="bg-white rounded-t-3xl px-6 py-8 min-h-screen">
+        <div className="mb-6">
+          <div className="flex items-center justify-between">
+            <p className="text-gray-800 font-medium">
+              Foram encontrados <span className="font-semibold text-green-600">{livrosFiltrados.length}</span> livros
+            </p>
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-gray-700 font-medium">Ordenar por:</span>
+              <select className="text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-green-500">
+                <option>Mais lidos</option>
+                <option>Mais recentes</option>
+              </select>
+            </div>
+          </div>
         </div>
 
         {livrosFiltrados.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="space-y-4">
             {livrosFiltrados.map((livro) => (
-              <div key={livro.id_livro} className="border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
-                {/* Capa do livro simulada */}
-                <div className="w-full h-48 bg-gradient-to-br from-blue-500 to-purple-600 rounded-md flex items-center justify-center text-white text-4xl mb-4">
-                  📖
-                </div>
-
-                {/* Informações do livro */}
-                <div className="space-y-2">
-                  <h3 className="text-lg font-semibold text-gray-900 line-clamp-2">
-                    {livro.nome}
-                  </h3>
-                  <p className="text-sm text-gray-600">por {livro.autor}</p>
-                  <p className="text-xs text-gray-500">{livro.genero}</p>
-                  
-                  {/* Status de disponibilidade */}
-                  <div className="flex items-center justify-between mt-4">
-                    <div>
-                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${
-                        livro.disponibilidade && livro.quantidade_disponivel > 0
-                          ? 'bg-green-100 text-green-800' 
-                          : 'bg-red-100 text-red-800'
+              <div key={livro.id_livro} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                <div className="flex items-start justify-between">
+                  {/* Book Info */}
+                  <div className="flex items-start space-x-4 flex-1">
+                    {/* Book Cover */}
+                    <div className="w-20 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center text-white text-2xl flex-shrink-0">
+                      📖
+                    </div>
+                    
+                    {/* Book Details */}
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                        {livro.nome}
+                      </h3>
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full mb-2 ${
+                        livro.genero === 'Tech' ? 'bg-green-100 text-green-800' :
+                        livro.genero === 'Educacional' ? 'bg-purple-100 text-purple-800' :
+                        'bg-blue-100 text-blue-800'
                       }`}>
-                        {livro.disponibilidade && livro.quantidade_disponivel > 0
-                          ? `${livro.quantidade_disponivel} disponível(is)`
-                          : 'Indisponível'
-                        }
+                        {livro.genero}
                       </span>
+                      <p className="text-gray-600 text-sm mb-3">
+                        {livro.descricao || `O livro "${livro.nome}" é um guia prático para quem quer desenvolver sistemas sólidos e sustentáveis a longo prazo, defendendo a simplicidade, coesão, independência e clareza estrutural no desenvolvimento de software.`}
+                      </p>
                     </div>
                   </div>
 
-                  {/* Botão de reserva */}
-                  <div className="mt-4">
+                  {/* Availability and Action */}
+                  <div className="flex flex-col items-end text-right ml-4">
+                    <div className={`text-3xl font-bold mb-1 ${
+                      livro.quantidade_disponivel > 0 ? 'text-green-600' : 'text-red-500'
+                    }`}>
+                      {livro.quantidade_disponivel}
+                    </div>
+                    <div className={`text-sm mb-4 ${
+                      livro.quantidade_disponivel > 0 ? 'text-gray-500' : 'text-red-500'
+                    }`}>
+                      {livro.quantidade_disponivel > 0 ? 'disponíveis' : 'indisponível'}
+                    </div>
+                    
                     {livro.disponibilidade && livro.quantidade_disponivel > 0 ? (
                       <button
                         onClick={() => handleReservar(livro)}
                         disabled={isReserving[livro.id_livro]}
-                        className="w-full bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
+                        className="bg-gray-200 text-gray-700 px-6 py-2 rounded-lg hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-400 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium transition-colors"
                       >
-                        {isReserving[livro.id_livro] ? (
-                          <div className="flex items-center justify-center">
-                            <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                            Reservando...
-                          </div>
-                        ) : (
-                          'Reservar Livro'
-                        )}
+                        {isReserving[livro.id_livro] ? 'Reservando...' : 'Reservar'}
                       </button>
                     ) : (
                       <button
                         disabled
-                        className="w-full bg-gray-300 text-gray-500 py-2 px-4 rounded-md cursor-not-allowed text-sm font-medium"
+                        className="bg-red-100 text-red-600 px-6 py-2 rounded-lg cursor-not-allowed text-sm font-medium border border-red-200"
                       >
                         Indisponível
                       </button>
@@ -394,3 +388,4 @@ export default function LivrosPage() {
     </div>
   );
 }
+

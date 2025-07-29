@@ -66,135 +66,145 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100 py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        {/* Header */}
-        <div className="text-center">
-          <div className="mx-auto h-16 w-16 bg-blue-600 rounded-full flex items-center justify-center mb-4">
-            <svg className="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} 
-                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" 
-              />
-            </svg>
-          </div>
-          <h2 className="text-3xl font-bold text-gray-900">BiblioTech</h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Sistema de Gerenciamento de Biblioteca Escolar
-          </p>
-        </div>
-
-        {/* Tipo de usuário */}
-        <div className="flex rounded-lg bg-gray-100 p-1">
-          <button
-            type="button"
-            onClick={() => setUserType('aluno')}
-            className={`flex-1 rounded-md py-2 px-4 text-sm font-medium transition-colors ${
-              userType === 'aluno'
-                ? 'bg-white text-blue-600 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            Aluno
-          </button>
-          <button
-            type="button"
-            onClick={() => setUserType('admin')}
-            className={`flex-1 rounded-md py-2 px-4 text-sm font-medium transition-colors ${
-              userType === 'admin'
-                ? 'bg-white text-blue-600 shadow-sm'
-                : 'text-gray-600 hover:text-gray-900'
-            }`}
-          >
-            Administrador
-          </button>
-        </div>
-
-        {/* Formulário */}
-        <form className="mt-8 space-y-6 bg-white p-6 rounded-lg shadow-md" onSubmit={handleSubmit}>
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="identifier" className="block text-sm font-medium text-gray-700">
-                {userType === 'aluno' ? 'Matrícula' : 'Nome de usuário'}
-              </label>
-              <input
-                id="identifier"
-                name="identifier"
-                type="text"
-                autoComplete="username"
-                required
-                value={formData.identifier}
-                onChange={handleInputChange}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-700 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder={userType === 'aluno' ? 'Digite sua matrícula' : 'Digite seu nome de usuário'}
-              />
+    <div className="min-h-screen bg-gray-50 flex flex-col">
+      <div className="flex-1 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full">
+          {/* Card Principal */}
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-8">
+            {/* Header */}
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-medium text-gray-900">Login</h2>
             </div>
-            
-            <div>
-              <label htmlFor="senha" className="block text-sm font-medium text-gray-700">
-                Senha
-              </label>
-              <input
-                id="senha"
-                name="senha"
-                type="password"
-                autoComplete="current-password"
-                required
-                value={formData.senha}
-                onChange={handleInputChange}
-                className="mt-1 appearance-none relative block w-full px-3 py-2 border border-gray-300 placeholder-gray-700 text-gray-900 rounded-md focus:outline-none focus:ring-blue-500 focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Digite sua senha"
-              />
-            </div>
-          </div>
 
-          <div>
-            <button
-              type="submit"
-              disabled={isLoading}
-              className="group relative w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
-            >
-              {isLoading ? (
-                <div className="flex items-center">
-                  <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent mr-2"></div>
-                  Entrando...
-                </div>
-              ) : (
-                'Entrar'
-              )}
-            </button>
-          </div>
-
-          {/* Mensagem de erro */}
-          {errorMessage && (
-            <div className="text-center">
-              <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">
-                {errorMessage}
-              </p>
-            </div>
-          )}
-
-          {/* Links adicionais */}
-          {userType === 'aluno' && (
-            <div className="text-center">
-              <p className="text-sm text-gray-600">
-                Primeira vez no sistema?{' '}
-                <a 
-                  href="/cadastrar-senha" 
-                  className="font-medium text-blue-600 hover:text-blue-500"
+            {/* Seletor de Tipo de Usuário */}
+            <div className="flex justify-center items-start space-x-8 mb-8">
+              <div className="flex flex-col items-center">
+                <button
+                  type="button"
+                  onClick={() => setUserType('aluno')}
+                  className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all ${
+                    userType === 'aluno'
+                      ? 'bg-green-500 border-green-500 text-white'
+                      : 'bg-white border-gray-300 text-gray-400 hover:border-green-300'
+                  }`}
+                  title="Aluno"
                 >
-                  Cadastre sua senha
-                </a>
-              </p>
+                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
+                  </svg>
+                </button>
+                <p className="text-xs text-gray-600 mt-2 font-medium text-center">Aluno</p>
+              </div>
+              
+              <div className="flex flex-col items-center">
+                <button
+                  type="button"
+                  onClick={() => setUserType('admin')}
+                  className={`w-12 h-12 rounded-full flex items-center justify-center border-2 transition-all ${
+                    userType === 'admin'
+                      ? 'bg-green-500 border-green-500 text-white'
+                      : 'bg-white border-gray-300 text-gray-400 hover:border-green-300'
+                  }`}
+                  title="Administrador"
+                >
+                  <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 20 20">
+                    <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" />
+                  </svg>
+                </button>
+                <p className="text-xs text-gray-600 mt-2 font-medium text-center">Administrador</p>
+              </div>
             </div>
-          )}
-        </form>
 
-        {/* Footer */}
-        <div className="text-center text-xs text-gray-500">
-          <p>&copy; 2025 EEEP - Escola Estadual de Educação Profissional</p>
-          <p className="mt-1">Sistema desenvolvido para otimizar o gerenciamento da biblioteca</p>
+            {/* Formulário */}
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  {userType === 'aluno' ? 'MATRÍCULA' : 'USUÁRIO'}
+                </label>
+                <input
+                  name="identifier"
+                  type="text"
+                  required
+                  value={formData.identifier}
+                  onChange={handleInputChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-400"
+                  placeholder={userType === 'aluno' ? 'Digite sua matrícula' : 'Digite seu usuário'}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  SENHA
+                </label>
+                <div className="relative">
+                  <input
+                    name="senha"
+                    type="password"
+                    required
+                    value={formData.senha}
+                    onChange={handleInputChange}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 pr-10 text-gray-400"
+                    placeholder="Digite sua senha"
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 pr-3 flex items-center"
+                  >
+                    <svg className="h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                    </svg>
+                  </button>
+                </div>
+              </div>
+
+              <button
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-green-500 text-white py-3 px-4 rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed font-medium"
+              >
+                {isLoading ? 'ENTRANDO...' : 'ENTRAR'}
+              </button>
+
+              {/* Mensagem de erro */}
+              {errorMessage && (
+                <div className="text-center">
+                  <p className="text-sm text-red-600 bg-red-50 border border-red-200 rounded-md px-3 py-2">
+                    {errorMessage}
+                  </p>
+                </div>
+              )}
+
+              {/* Link para cadastro */}
+              {userType === 'aluno' && (
+                <div className="text-center">
+                  <p className="text-sm text-gray-600">
+                    Não possui uma conta?{' '}
+                    <a 
+                      href="/cadastrar-senha" 
+                      className="text-green-600 hover:text-green-500 font-medium"
+                    >
+                      Cadastrar
+                    </a>
+                  </p>
+                </div>
+              )}
+            </form>
+          </div>
         </div>
       </div>
+
+      {/* Footer fixo na parte inferior */}
+      <footer className="bg-white border-t border-gray-200 py-4">
+        <div className="text-center">
+          <p className="text-xs text-gray-500">
+            © 2025 BiblioTech - Sistema de Gerenciamento de Biblioteca Escolar
+          </p>
+          <p className="text-xs text-gray-400 mt-1">
+            EEEP - Escola Estadual de Educação Profissional
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

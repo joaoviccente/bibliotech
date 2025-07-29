@@ -6,13 +6,13 @@ import { authService, livrosService } from '@/services';
 import Loading from '@/components/Loading';
 
 /**
- * Página para gerenciar os livros do usuário (reservados e concluídos)
+ * Página para gerenciar os livros do usuário (alugados, concluídos e atrasados)
  */
 export default function MeusLivrosPage() {
   const [meusLivros, setMeusLivros] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isProcessing, setIsProcessing] = useState({});
-  const [filtroStatus, setFiltroStatus] = useState('todos'); // todos, reservado, concluido, atrasado
+  const [filtroStatus, setFiltroStatus] = useState('alugados'); // alugados, concluidos, atrasados
   const [user, setUser] = useState(null);
   const [modalState, setModalState] = useState({
     isOpen: false,
@@ -26,10 +26,26 @@ export default function MeusLivrosPage() {
   const loadMeusLivros = useCallback(async () => {
     try {
       const livrosData = await livrosService.meuHistorico();
-      setMeusLivros(livrosData);
+      
+      // Processar dados para adicionar campos calculados
+      const livrosProcessados = livrosData.map(item => {
+        const dataAtual = new Date();
+        const dataDevolucao = new Date(item.data_devolucao_prevista);
+        const diasRestantes = Math.ceil((dataDevolucao - dataAtual) / (1000 * 60 * 60 * 24));
+        
+        return {
+          ...item,
+          dias_restantes: diasRestantes,
+          // Mapear campos para consistência
+          genero: item.genero_livro || item.genero
+        };
+      });
+      
+      setMeusLivros(livrosProcessados);
     } catch (error) {
       console.error('Erro ao carregar meus livros:', error);
-      // Em caso de erro, poderemos mostrar uma mensagem de erro local
+      // Se API falhar, usar lista vazia
+      setMeusLivros([]);
     }
   }, []);
 
@@ -75,16 +91,19 @@ export default function MeusLivrosPage() {
 
     try {
       await livrosService.marcarConcluido(modalState.reserva.id_reserva);
+      
+      // Atualizar a lista de livros
       await loadMeusLivros();
       
       // Mostrar sucesso no modal
       setModalState(prev => ({ ...prev, step: 'success' }));
-      setModalMessage('Livro Concluído!');
+      setModalMessage('Livro marcado como concluído! Ele foi movido para a aba "Concluídos".');
       
-      // Fechar modal após 3 segundos
+      // Fechar modal após 3 segundos e mudar para aba concluídos
       setTimeout(() => {
         setModalState({ isOpen: false, reserva: null, step: 'confirm' });
         setModalMessage('');
+        setFiltroStatus('concluidos'); // Mudar para aba concluídos
       }, 3000);
       
     } catch (error) {
@@ -92,7 +111,7 @@ export default function MeusLivrosPage() {
       
       // Mostrar erro no modal
       setModalState(prev => ({ ...prev, step: 'error' }));
-      setModalMessage('Erro ao marcar livro como concluído');
+      setModalMessage('Erro ao marcar livro como concluído. Tente novamente.');
       
       // Fechar modal após 3 segundos
       setTimeout(() => {
@@ -114,56 +133,55 @@ export default function MeusLivrosPage() {
 
     try {
       await livrosService.renovarEmprestimo(reservaId);
-      // Poderemos implementar um modal para renovação também se necessário
       await loadMeusLivros();
       
     } catch (error) {
       console.error('Erro ao renovar empréstimo:', error);
-      // Em caso de erro, poderemos mostrar uma mensagem de erro local
     } finally {
       setIsProcessing(prev => ({ ...prev, [reservaId]: false }));
     }
   };
 
   const filtrarLivros = () => {
-    if (filtroStatus === 'todos') return meusLivros;
-    return meusLivros.filter(item => item.status === filtroStatus);
+    switch (filtroStatus) {
+      case 'alugados':
+        return meusLivros.filter(item => 
+          item.status === 'reservado' || 
+          item.status === 'emprestado'
+        );
+      case 'concluidos':
+        return meusLivros.filter(item => 
+          item.status === 'concluido' || 
+          item.status === 'devolvido'
+        );
+      case 'atrasados':
+        return meusLivros.filter(item => 
+          (item.status === 'reservado' || item.status === 'emprestado') && 
+          item.dias_restantes < 0
+        );
+      default:
+        return meusLivros;
+    }
   };
 
   const livrosFiltrados = filtrarLivros();
 
-  const getStatusColor = (status) => {
-    switch (status) {
-      case 'reservado':
-        return 'bg-blue-100 text-blue-800';
-      case 'emprestado':
-        return 'bg-green-100 text-green-800';
-      case 'concluido':
-        return 'bg-purple-100 text-purple-800';
-      case 'atrasado':
-        return 'bg-red-100 text-red-800';
-      case 'devolvido':
-        return 'bg-gray-100 text-gray-800';
-      default:
-        return 'bg-gray-100 text-gray-800';
-    }
-  };
-
-  const getStatusText = (status) => {
-    switch (status) {
-      case 'reservado':
-        return 'Reservado';
-      case 'emprestado':
-        return 'Emprestado';
-      case 'concluido':
-        return 'Concluído';
-      case 'atrasado':
-        return 'Em Atraso';
-      case 'devolvido':
-        return 'Devolvido';
-      default:
-        return status;
-    }
+  const getGeneroColor = (genero) => {
+    if (!genero) return 'bg-gray-100 text-gray-800';
+    
+    const colors = {
+      'Tech': 'bg-green-100 text-green-800',
+      'Educacional': 'bg-purple-100 text-purple-800',
+      'Didático': 'bg-blue-100 text-blue-800',
+      'Literatura': 'bg-yellow-100 text-yellow-800',
+      'Romance': 'bg-pink-100 text-pink-800',
+      'Ação': 'bg-red-100 text-red-800',
+      'Administração': 'bg-indigo-100 text-indigo-800',
+      'Enfermagem': 'bg-teal-100 text-teal-800',
+      'Edificações': 'bg-orange-100 text-orange-800',
+      'Comédia': 'bg-lime-100 text-lime-800'
+    };
+    return colors[genero] || 'bg-gray-100 text-gray-800';
   };
 
   const calcularDiasRestantes = (dataVencimento) => {
@@ -173,171 +191,158 @@ export default function MeusLivrosPage() {
     return diferenca;
   };
 
+  const formatarData = (dataString) => {
+    if (!dataString) return '';
+    const data = new Date(dataString);
+    return data.toLocaleDateString('pt-BR');
+  };
+
   if (isLoading) {
     return <Loading message="Carregando seus livros..." />;
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">
-          Meus Livros 📚
-        </h1>
-        <p className="text-gray-600 mt-1">
-          Gerencie seus livros reservados e concluídos
-        </p>
-      </div>
-
-      {/* Filtros */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-8">
-        <div className="flex flex-wrap gap-2">
-          <button
-            onClick={() => setFiltroStatus('todos')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              filtroStatus === 'todos'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            Todos ({meusLivros.length})
-          </button>
-          <button
-            onClick={() => setFiltroStatus('reservado')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              filtroStatus === 'reservado'
-                ? 'bg-blue-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            Reservados ({meusLivros.filter(l => l.status === 'reservado').length})
-          </button>
-          <button
-            onClick={() => setFiltroStatus('concluido')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              filtroStatus === 'concluido'
-                ? 'bg-purple-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            Concluídos ({meusLivros.filter(l => l.status === 'concluido').length})
-          </button>
-          <button
-            onClick={() => setFiltroStatus('atrasado')}
-            className={`px-4 py-2 rounded-md text-sm font-medium transition-colors ${
-              filtroStatus === 'atrasado'
-                ? 'bg-red-600 text-white'
-                : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-            }`}
-          >
-            Em Atraso ({meusLivros.filter(l => l.status === 'atrasado').length})
-          </button>
+    <div className="bg-gradient-to-br from-green-600 to-green-700 min-h-screen">
+      {/* Header Section */}
+      <div className="px-6 py-8">
+        <div className="mb-8">
+          <h1 className="text-3xl font-bold text-white mb-2">
+            Meus Livros
+          </h1>
         </div>
       </div>
 
-      {/* Lista de livros */}
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+      {/* Main Content */}
+      <div className="bg-white rounded-t-3xl px-6 py-8 min-h-screen">
+        {/* Tabs */}
+        <div className="mb-8">
+          <div className="flex space-x-8 border-b border-gray-200">
+            <button
+              onClick={() => setFiltroStatus('alugados')}
+              className={`pb-4 text-lg font-medium transition-colors ${
+                filtroStatus === 'alugados'
+                  ? 'text-gray-900 border-b-2 border-gray-900'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Alugados
+            </button>
+            <button
+              onClick={() => setFiltroStatus('concluidos')}
+              className={`pb-4 text-lg font-medium transition-colors ${
+                filtroStatus === 'concluidos'
+                  ? 'text-gray-900 border-b-2 border-gray-900'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Concluídos
+            </button>
+            <button
+              onClick={() => setFiltroStatus('atrasados')}
+              className={`pb-4 text-lg font-medium transition-colors ${
+                filtroStatus === 'atrasados'
+                  ? 'text-gray-900 border-b-2 border-gray-900'
+                  : 'text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              Atrasados
+            </button>
+          </div>
+        </div>
+
+        {/* Books List */}
         {livrosFiltrados.length > 0 ? (
-          <div className="space-y-6">
+          <div className="space-y-4">
             {livrosFiltrados.map((item) => (
-              <div key={item.id_reserva} className="border border-gray-200 rounded-lg p-6">
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between">
-                  {/* Informações do livro */}
-                  <div className="flex-1">
-                    <div className="flex items-start justify-between mb-4">
-                      <div>
-                        <h3 className="text-lg font-semibold text-gray-900 mb-1">
-                          {item.nome_livro}
-                        </h3>
-                        <p className="text-sm text-gray-600 mb-2">por {item.autor_livro}</p>
-                        
-                        {/* Status */}
-                        <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${getStatusColor(item.status)}`}>
-                          {getStatusText(item.status)}
-                        </span>
-                      </div>
-                      
-                      {/* Capa simulada */}
-                      <div className="w-16 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center text-white text-xl ml-4 lg:hidden">
-                        📖
-                      </div>
+              <div key={item.id_reserva} className="bg-white border border-gray-200 rounded-lg p-6 hover:shadow-md transition-shadow">
+                <div className="flex items-start justify-between">
+                  {/* Book Info */}
+                  <div className="flex items-start space-x-4 flex-1">
+                    {/* Book Cover */}
+                    <div className="w-20 h-24 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex items-center justify-center text-white text-2xl flex-shrink-0">
+                      📖
                     </div>
-
-                    {/* Datas e informações */}
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 text-sm">
-                      {item.data_reserva && (
-                        <div>
-                          <span className="font-medium text-gray-700">Data da Reserva:</span>
-                          <p className="text-gray-600">{new Date(item.data_reserva).toLocaleDateString('pt-BR')}</p>
-                        </div>
-                      )}
-                      
-                      {item.data_emprestimo && (
-                        <div>
-                          <span className="font-medium text-gray-700">Data do Empréstimo:</span>
-                          <p className="text-gray-600">{new Date(item.data_emprestimo).toLocaleDateString('pt-BR')}</p>
-                        </div>
-                      )}
-                      
-                      {item.data_vencimento && (
-                        <div>
-                          <span className="font-medium text-gray-700">Data de Vencimento:</span>
-                          <p className={`${
-                            calcularDiasRestantes(item.data_vencimento) < 0 
-                              ? 'text-red-600 font-medium' 
-                              : calcularDiasRestantes(item.data_vencimento) <= 3
-                              ? 'text-yellow-600 font-medium'
-                              : 'text-gray-600'
-                          }`}>
-                            {new Date(item.data_vencimento).toLocaleDateString('pt-BR')}
-                            {item.status === 'emprestado' && (
-                              <span className="block text-xs">
-                                {calcularDiasRestantes(item.data_vencimento) < 0 
-                                  ? `${Math.abs(calcularDiasRestantes(item.data_vencimento))} dias em atraso`
-                                  : `${calcularDiasRestantes(item.data_vencimento)} dias restantes`
-                                }
-                              </span>
-                            )}
-                          </p>
-                        </div>
-                      )}
-                      
-                      {item.data_devolucao && (
-                        <div>
-                          <span className="font-medium text-gray-700">Data da Devolução:</span>
-                          <p className="text-gray-600">{new Date(item.data_devolucao).toLocaleDateString('pt-BR')}</p>
-                        </div>
-                      )}
+                    
+                    {/* Book Details */}
+                    <div className="flex-1">
+                      <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                        {item.nome_livro}
+                      </h3>
+                      <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full mb-2 ${getGeneroColor(item.genero)}`}>
+                        {item.genero}
+                      </span>
+                      <p className="text-gray-600 text-sm mb-3">
+                        Autor: {item.autor_livro}
+                      </p>
                     </div>
                   </div>
 
-                  {/* Capa do livro (desktop) */}
-                  <div className="hidden lg:block w-16 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded flex-shrink-0 ml-6 flex items-center justify-center text-white text-xl">
-                    📖
-                  </div>
-                </div>
+                  {/* Status and Actions */}
+                  <div className="flex flex-col items-end text-right ml-4">
+                    {filtroStatus === 'alugados' && (
+                      <>
+                        <div className="text-right mb-4">
+                          <div className="text-sm font-medium text-gray-700">Data de entrega</div>
+                          <div className="text-lg font-bold text-blue-600 mb-1">
+                            {formatarData(item.data_devolucao_prevista)}
+                          </div>
+                          <div className="text-sm text-gray-500">
+                            {item.dias_restantes > 0 
+                              ? `${item.dias_restantes} dias restantes`
+                              : item.dias_restantes === 0 
+                                ? 'Vence hoje'
+                                : `${Math.abs(item.dias_restantes)} dias em atraso`
+                            }
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleMarcarConcluido(item.id_reserva)}
+                          disabled={isProcessing[item.id_reserva]}
+                          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium transition-colors"
+                        >
+                          {isProcessing[item.id_reserva] ? 'Processando...' : 'Concluir leitura'}
+                        </button>
+                      </>
+                    )}
 
-                {/* Ações */}
-                <div className="flex flex-wrap gap-2 mt-6 pt-4 border-t border-gray-200">
-                  {item.status === 'reservado' && (
-                    <button
-                      onClick={() => handleMarcarConcluido(item.id_reserva)}
-                      disabled={isProcessing[item.id_reserva]}
-                      className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-                    >
-                      {isProcessing[item.id_reserva] ? 'Processando...' : 'Marcar como Concluído'}
-                    </button>
-                  )}
-                  
-                  {item.status === 'emprestado' && (
-                    <button
-                      onClick={() => handleRenovar(item.id_reserva)}
-                      disabled={isProcessing[item.id_reserva]}
-                      className="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium"
-                    >
-                      {isProcessing[item.id_reserva] ? 'Renovando...' : 'Renovar Empréstimo'}
-                    </button>
-                  )}
+                    {filtroStatus === 'concluidos' && (
+                      <>
+                        <div className="text-right mb-4">
+                          <div className="text-sm font-medium text-gray-700">Data de conclusão</div>
+                          <div className="text-lg font-bold text-green-600 mb-1">
+                            {formatarData(item.data_devolucao_prevista)}
+                          </div>
+                          <div className="text-sm text-green-600 font-medium">
+                            ✅ Leitura concluída
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {filtroStatus === 'atrasados' && (
+                      <>
+                        <div className="text-right mb-4">
+                          <div className="text-sm font-medium text-gray-700">Data de entrega</div>
+                          <div className="text-lg font-bold text-red-600 mb-1">
+                            {formatarData(item.data_devolucao_prevista)}
+                          </div>
+                          <div className="text-sm text-red-600 font-medium">
+                            {Math.abs(item.dias_restantes)} dias em atraso
+                          </div>
+                          <div className="text-xs text-red-500 mt-1">
+                            Compareça à biblioteca
+                          </div>
+                        </div>
+                        <button
+                          onClick={() => handleMarcarConcluido(item.id_reserva)}
+                          disabled={isProcessing[item.id_reserva]}
+                          className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed text-sm font-medium transition-colors"
+                        >
+                          {isProcessing[item.id_reserva] ? 'Processando...' : 'Concluir leitura'}
+                        </button>
+                      </>
+                    )}
+                  </div>
                 </div>
               </div>
             ))}
@@ -348,13 +353,14 @@ export default function MeusLivrosPage() {
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
             </svg>
             <h3 className="text-lg font-medium text-gray-900 mb-2">
-              {filtroStatus === 'todos' ? 'Nenhum livro encontrado' : `Nenhum livro ${getStatusText(filtroStatus).toLowerCase()}`}
+              {filtroStatus === 'alugados' && 'Nenhum livro alugado'}
+              {filtroStatus === 'concluidos' && 'Nenhum livro concluído'}
+              {filtroStatus === 'atrasados' && 'Nenhum livro em atraso'}
             </h3>
             <p className="text-gray-500">
-              {filtroStatus === 'todos' 
-                ? 'Você ainda não possui livros reservados ou concluídos.'
-                : 'Experimente outros filtros para ver mais livros.'
-              }
+              {filtroStatus === 'alugados' && 'Você ainda não possui livros alugados.'}
+              {filtroStatus === 'concluidos' && 'Você ainda não concluiu a leitura de nenhum livro.'}
+              {filtroStatus === 'atrasados' && 'Parabéns! Você não possui livros em atraso.'}
             </p>
           </div>
         )}
@@ -392,11 +398,9 @@ export default function MeusLivrosPage() {
                   <div className="bg-gray-50 rounded-lg p-4 mb-6">
                     <h4 className="font-medium text-gray-900 mb-2">{modalState.reserva.nome_livro}</h4>
                     <div className="space-y-1 text-sm text-gray-600">
-                      <p><span className="font-medium">Autor:</span> {modalState.reserva.autor}</p>
-                      <p><span className="font-medium">Data de Reserva:</span> {new Date(modalState.reserva.data_reserva).toLocaleDateString('pt-BR')}</p>
-                      {modalState.reserva.data_devolucao_prevista && (
-                        <p><span className="font-medium">Devolução Prevista:</span> {new Date(modalState.reserva.data_devolucao_prevista).toLocaleDateString('pt-BR')}</p>
-                      )}
+                      <p><span className="font-medium">Autor:</span> {modalState.reserva.autor_livro}</p>
+                      <p><span className="font-medium">Data de Reserva:</span> {formatarData(modalState.reserva.data_reserva)}</p>
+                      <p><span className="font-medium">Data de Entrega:</span> {formatarData(modalState.reserva.data_devolucao_prevista)}</p>
                     </div>
                   </div>
 
@@ -426,7 +430,7 @@ export default function MeusLivrosPage() {
                     </svg>
                   </div>
                   <h3 className="text-lg font-semibold text-gray-900 mb-2">Livro Concluído!</h3>
-                  <p className="text-gray-600">Parabéns por concluir mais uma leitura! 🎉</p>
+                  <p className="text-gray-600">{modalMessage}</p>
                 </div>
               )}
 
