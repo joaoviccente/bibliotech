@@ -32,12 +32,14 @@ export default function MeusLivrosPage() {
         const dataAtual = new Date();
         const dataDevolucao = new Date(item.data_devolucao_prevista);
         const diasRestantes = Math.ceil((dataDevolucao - dataAtual) / (1000 * 60 * 60 * 24));
+        const statusLivro = item.status;
         
         return {
           ...item,
           dias_restantes: diasRestantes,
           // Mapear campos para consistência
-          genero: item.genero_livro || item.genero
+          genero: item.genero_livro || item.genero,
+          statusLivro: statusLivro
         };
       });
       
@@ -154,7 +156,7 @@ export default function MeusLivrosPage() {
           item.status === 'concluido' || 
           item.status === 'devolvido'
         );
-      case 'atrasados':
+      case 'pendente':
         return meusLivros.filter(item => 
           (item.status === 'reservado' || item.status === 'emprestado') && 
           item.dias_restantes < 0
@@ -200,7 +202,7 @@ export default function MeusLivrosPage() {
   if (isLoading) {
     return <Loading message="Carregando seus livros..." />;
   }
-
+  
   return (
     <div className="bg-gradient-to-br from-green-600 to-green-700 min-h-screen">
       {/* Header Section */}
@@ -238,14 +240,14 @@ export default function MeusLivrosPage() {
               Concluídos
             </button>
             <button
-              onClick={() => setFiltroStatus('atrasados')}
+              onClick={() => setFiltroStatus('pendente')}
               className={`pb-4 text-lg font-medium transition-colors ${
-                filtroStatus === 'atrasados'
+                filtroStatus === 'pendente'
                   ? 'text-gray-900 border-b-2 border-gray-900'
                   : 'text-gray-500 hover:text-gray-700'
               }`}
             >
-              Atrasados
+              Pendentes
             </button>
           </div>
         </div>
@@ -319,7 +321,7 @@ export default function MeusLivrosPage() {
                       </>
                     )}
 
-                    {filtroStatus === 'atrasados' && (
+                    {filtroStatus === 'pendente' && (
                       <>
                         <div className="text-right mb-4">
                           <div className="text-sm font-medium text-gray-700">Data de entrega</div>
@@ -355,12 +357,12 @@ export default function MeusLivrosPage() {
             <h3 className="text-lg font-medium text-gray-900 mb-2">
               {filtroStatus === 'alugados' && 'Nenhum livro alugado'}
               {filtroStatus === 'concluidos' && 'Nenhum livro concluído'}
-              {filtroStatus === 'atrasados' && 'Nenhum livro em atraso'}
+              {filtroStatus === 'pendente' && 'Nenhum livro em atraso'}
             </h3>
             <p className="text-gray-500">
               {filtroStatus === 'alugados' && 'Você ainda não possui livros alugados.'}
               {filtroStatus === 'concluidos' && 'Você ainda não concluiu a leitura de nenhum livro.'}
-              {filtroStatus === 'atrasados' && 'Parabéns! Você não possui livros em atraso.'}
+              {filtroStatus === 'pendente' && 'Parabéns! Você não possui livros em atraso.'}
             </p>
           </div>
         )}
