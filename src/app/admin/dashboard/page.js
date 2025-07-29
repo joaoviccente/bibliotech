@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { authService } from '@/services';
+import { alunosService, authService, livrosService } from '@/services';
 import Loading from '@/components/Loading';
 
 /**
@@ -10,6 +10,14 @@ import Loading from '@/components/Loading';
  */
 export default function AdminDashboard() {
   const [user, setUser] = useState(null);
+  const [dataAllBooks, setDataAllBooks] = useState([]);
+  const [dataAllStudents, setDataAllStudents] = useState([]);
+  const [dataAllPendencies, setDataAllPendencies] = useState([]);
+
+
+
+
+
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
 
@@ -33,6 +41,29 @@ export default function AdminDashboard() {
 
     checkAuth();
   }, [router]);
+
+  useEffect(() => {
+    const fetchDatas = async () => {
+      debugger
+      try {
+        const allBooks = livrosService.buscarTodos();
+        const allStudents = alunosService.buscarTodos();
+        const allPendencies = livrosService.buscarReservasPendentes()
+
+        setDataAllBooks(allBooks);
+        setDataAllStudents(allStudents)
+        setDataAllPendencies(allPendencies)
+      } catch (error) {
+        console.error('Erro ao verificar autenticação:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchDatas();
+  }, [router]);
+
+
 
   if (isLoading) {
     return <Loading message="Carregando painel administrativo..." />;

@@ -9,7 +9,8 @@ const livrosService = {
    * @param {Object} filtros - Filtros opcionais (gênero, disponibilidade, etc.)
    * @returns {Promise} Lista de livros
    */
-  async buscarTodos(filtros = {}) {
+  async buscarTodos(filtros) {
+    debugger
     try {
       const params = new URLSearchParams(filtros);
       const response = await api.get(`/livros?${params}`);

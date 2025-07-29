@@ -5,7 +5,6 @@ const router = express.Router();
 
 // Buscar todos os livros (com opção de filtrar por disponibilidade)
 router.get('/disponiveis', authMiddleware, async (req, res) => {
-  
   try {
     const { disponivel_apenas } = req.query;
     
