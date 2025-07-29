@@ -46,15 +46,7 @@ export default function RelatoriosPage() {
               Gere relatórios em PDF sobre reservas e ranking de leitura
             </p>
           </div>
-          <button
-            onClick={() => router.push('/admin/dashboard')}
-            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md font-medium transition-colors flex items-center"
-          >
-            <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-            </svg>
-            Voltar ao Dashboard
-          </button>
+          
         </div>
       </div>
 

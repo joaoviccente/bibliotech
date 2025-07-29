@@ -89,7 +89,6 @@ export default function LivrosPage() {
   // Recarregar livros quando o filtro de disponibilidade mudar
   useEffect(() => {
     if (user) {
-      
       loadLivros();
     }
   }, [filtros.disponivel, loadLivros, user]);
