@@ -9,11 +9,21 @@ const livrosService = {
    * @param {Object} filtros - Filtros opcionais (gênero, disponibilidade, etc.)
    * @returns {Promise} Lista de livros
    */
-  async buscarTodos(filtros) {
-    debugger
+  async buscarTodos() {
+    
     try {
-      const params = new URLSearchParams(filtros);
-      const response = await api.get(`/livros?${params}`);
+      const response = await api.get('/livros/qtd-livros');
+      return response.data;
+    } catch (error) {
+      console.error('Erro ao buscar livros:', error);
+      throw error;
+    }
+  },
+
+  async buscarPorQtd() {
+    
+    try {
+      const response = await api.get('/livros/qtd-livros/emprestados');
       return response.data;
     } catch (error) {
       console.error('Erro ao buscar livros:', error);
@@ -72,7 +82,6 @@ const livrosService = {
    * @returns {Promise} Lista de livros disponíveis
    */
   async buscarDisponiveis(apenasDisponiveis) {
-    debugger
     try {
       const params = apenasDisponiveis ? '?disponivel_apenas=true' : '';
       const response = await api.get(`/livros/disponiveis${params}`);
@@ -164,8 +173,9 @@ const livrosService = {
    * @returns {Promise} Lista de reservas pendentes
    */
   async buscarReservasPendentes() {
+    
     try {
-      const response = await api.get('/livros/reservas-pendentes');
+      const response = await api.get('/reservas/qtd-pendencias');
       return response.data;
     } catch (error) {
       console.error('Erro ao buscar reservas pendentes:', error);

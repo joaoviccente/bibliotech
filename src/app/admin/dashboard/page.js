@@ -12,11 +12,7 @@ export default function AdminDashboard() {
   const [user, setUser] = useState(null);
   const [dataAllBooks, setDataAllBooks] = useState([]);
   const [dataAllStudents, setDataAllStudents] = useState([]);
-  const [dataAllPendencies, setDataAllPendencies] = useState([]);
-
-
-
-
+  const [dataAllLendings, setDataAllLendings] = useState([]);
 
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
@@ -44,15 +40,15 @@ export default function AdminDashboard() {
 
   useEffect(() => {
     const fetchDatas = async () => {
-      debugger
+      
       try {
-        const allBooks = livrosService.buscarTodos();
-        const allStudents = alunosService.buscarTodos();
-        const allPendencies = livrosService.buscarReservasPendentes()
+        const allBooks = await livrosService.buscarTodos();
+        const allStudents = await alunosService.buscarTodos();
+        const allLendings = await livrosService.buscarPorQtd()
 
         setDataAllBooks(allBooks);
         setDataAllStudents(allStudents)
-        setDataAllPendencies(allPendencies)
+        setDataAllLendings(allLendings)
       } catch (error) {
         console.error('Erro ao verificar autenticação:', error);
       } finally {
@@ -61,7 +57,7 @@ export default function AdminDashboard() {
     };
 
     fetchDatas();
-  }, [router]);
+  }, []);
 
 
 
@@ -101,7 +97,7 @@ export default function AdminDashboard() {
               </div>
               <div className="ml-4">
                 <h3 className="text-lg font-medium text-gray-900">Total de Livros</h3>
-                <p className="text-3xl font-bold text-blue-600">156</p>
+                <p className="text-3xl font-bold text-blue-600">{dataAllBooks.quantity}</p>
                 <p className="text-sm text-gray-500">No sistema</p>
               </div>
             </div>
@@ -117,7 +113,7 @@ export default function AdminDashboard() {
               </div>
               <div className="ml-4">
                 <h3 className="text-lg font-medium text-gray-900">Usuários Ativos</h3>
-                <p className="text-3xl font-bold text-green-600">48</p>
+                <p className="text-3xl font-bold text-green-600">{dataAllStudents.quantity}</p>
                 <p className="text-sm text-gray-500">Estudantes cadastrados</p>
               </div>
             </div>
@@ -133,58 +129,8 @@ export default function AdminDashboard() {
               </div>
               <div className="ml-4">
                 <h3 className="text-lg font-medium text-gray-900">Empréstimos</h3>
-                <p className="text-3xl font-bold text-yellow-600">23</p>
+                <p className="text-3xl font-bold text-yellow-600">{dataAllLendings.totalEmprestados}</p>
                 <p className="text-sm text-gray-500">Em andamento</p>
-              </div>
-            </div>
-          </div>
-
-          {/* Livros em Atraso */}
-          <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-            <div className="flex items-center">
-              <div className="flex-shrink-0">
-                <svg className="w-8 h-8 text-red-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div className="ml-4">
-                <h3 className="text-lg font-medium text-gray-900">Em Atraso</h3>
-                <p className="text-3xl font-bold text-red-600">5</p>
-                <p className="text-sm text-gray-500">Devoluções pendentes</p>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Recent Activity */}
-        <div className="bg-white border border-gray-200 rounded-lg p-6 shadow-sm">
-          <h3 className="text-lg font-medium text-gray-900 mb-4">Atividades Recentes</h3>
-          <div className="space-y-4">
-            <div className="flex items-center space-x-4">
-              <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-              <div className="flex-1">
-                <p className="text-sm text-gray-900">
-                  <span className="font-medium">João Silva</span> reservou o livro "Clean Code"
-                </p>
-                <p className="text-xs text-gray-500">Há 5 minutos</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="w-2 h-2 bg-blue-400 rounded-full"></div>
-              <div className="flex-1">
-                <p className="text-sm text-gray-900">
-                  <span className="font-medium">Maria Santos</span> devolveu "Algoritmos e Estruturas de Dados"
-                </p>
-                <p className="text-xs text-gray-500">Há 15 minutos</p>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <div className="w-2 h-2 bg-yellow-400 rounded-full"></div>
-              <div className="flex-1">
-                <p className="text-sm text-gray-900">
-                  Novo livro <span className="font-medium">"Fundamentos de React"</span> foi cadastrado
-                </p>
-                <p className="text-xs text-gray-500">Há 30 minutos</p>
               </div>
             </div>
           </div>

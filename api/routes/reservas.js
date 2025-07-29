@@ -127,14 +127,23 @@ router.put("/renovar/:id", authMiddleware, isAluno, async (req, res) => {
   }
 });
 
-router.get("/qtd-pedencias", authMiddleware, isAluno, async (req, res) => {
-  const livrosPendentes = await this.prisma.reservas.count({
-    where: {
-      id_aluno: req.user.id,
-      status: "pendente",
-    },
-  });
-  res.json({ quantidade: livrosPendentes });
+router.get("/qtd-pendencias", authMiddleware, async (req, res) => {
+  try {
+    const livrosPendentes = await this.prisma.reservas.findMany();
+
+    let qtd = 0;
+
+    for (const reserva of livrosPendentes) {
+      if (reserva.status === "pendente") {
+        qtd++;
+      }
+    }
+
+    res.json({ quantidade: qtd });
+  } catch (error) {
+    console.error("Erro ao contar pendências:", error);
+    res.status(500).json({ message: "Erro interno do servidor" });
+  }
 });
 
 module.exports = router;

@@ -227,7 +227,7 @@ router.get("/estatisticas", authMiddleware, async (req, res) => {
   }
 });
 
-router.get("/alunos", authMiddleware, async (req, res) => {
+router.get("/qtd-alunos", authMiddleware, async (req, res) => {
   try {
     const alunos = await prisma.aluno.findMany({
       select: {
@@ -240,7 +240,7 @@ router.get("/alunos", authMiddleware, async (req, res) => {
 
     const quantity = alunos.length;
 
-    res.json(quantity);
+    res.json({quantity});
   } catch (error) {
     console.error("Erro ao buscar alunos:", error);
     res.status(500).json({ message: "Erro interno do servidor" });

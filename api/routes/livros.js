@@ -182,12 +182,29 @@ router.get("/qtd-livros", authMiddleware, async (req, res) => {
 
     const quantity = livros.length;
 
-    res.json(quantity);
+    res.json({quantity});
   } catch (error) {
     console.error("Erro ao buscar alunos:", error);
     res.status(500).json({ message: "Erro interno do servidor" });
   }
 });
+
+router.get("/qtd-livros/emprestados", authMiddleware, async (req, res) => {
+  try {
+    const livros = await prisma.livro.findMany();
+
+    // Soma todas as quantidades alugadas (caso o campo esteja presente)
+    const totalEmprestados = livros.reduce((total, livro) => {
+      return total + (livro.quantidade_alugada || 0);
+    }, 0);
+
+    res.json({ totalEmprestados });
+  } catch (error) {
+    console.error("Erro ao buscar livros:", error);
+    res.status(500).json({ message: "Erro interno do servidor" });
+  }
+});
+
 
 // Marcar livro como concluído
 router.patch(

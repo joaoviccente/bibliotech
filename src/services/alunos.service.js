@@ -10,7 +10,7 @@ const alunosService = {
    */
   async buscarTodos() {
     try {
-      const response = await api.get('/alunos');
+      const response = await api.get('/alunos/qtd-alunos');
       return response.data;
     } catch (error) {
       console.error('Erro ao buscar alunos:', error);
