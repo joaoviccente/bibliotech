@@ -127,7 +127,7 @@ export default function LoginPage() {
                   required
                   value={formData.identifier}
                   onChange={handleInputChange}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 text-gray-400"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-200 focus:border-green-500 pr-10 text-gray-400"
                   placeholder={userType === 'aluno' ? 'Digite sua matrícula' : 'Digite seu usuário'}
                 />
               </div>
@@ -143,7 +143,7 @@ export default function LoginPage() {
                     required
                     value={formData.senha}
                     onChange={handleInputChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 pr-10 text-gray-400"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-1 focus:ring-green-200 focus:border-green-500 pr-10 text-gray-400"
                     placeholder="Digite sua senha"
                   />
                   <button

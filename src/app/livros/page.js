@@ -215,13 +215,6 @@ export default function LivrosPage() {
             <p className="text-gray-800 font-medium">
               Foram encontrados <span className="font-semibold text-green-600">{livrosFiltrados.length}</span> livros
             </p>
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-gray-700 font-medium">Ordenar por:</span>
-              <select className="text-sm text-gray-700 bg-gray-100 border border-gray-300 rounded-lg px-3 py-1 focus:outline-none focus:ring-2 focus:ring-green-500">
-                <option>Mais lidos</option>
-                <option>Mais recentes</option>
-              </select>
-            </div>
           </div>
         </div>
 
