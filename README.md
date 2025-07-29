@@ -167,12 +167,6 @@ Todos os serviços estão organizados na pasta `src/services/`:
 - Sanitização de entradas
 - Controle de acesso por tipo de usuário
 
-## 📱 Responsividade
-
-- Design mobile-first
-- Breakpoints otimizados
-- Interface adaptável para diferentes tamanhos de tela
-
 ## 🤝 Contribuição
 
 1. Fork o projeto
