@@ -167,12 +167,6 @@ Todos os serviços estão organizados na pasta `src/services/`:
 - Sanitização de entradas
 - Controle de acesso por tipo de usuário
 
-## 📱 Responsividade
-
-- Design mobile-first
-- Breakpoints otimizados
-- Interface adaptável para diferentes tamanhos de tela
-
 ## 🤝 Contribuição
 
 1. Fork o projeto
@@ -180,15 +174,3 @@ Todos os serviços estão organizados na pasta `src/services/`:
 3. Commit suas mudanças (`git commit -m 'Add some AmazingFeature'`)
 4. Push para a branch (`git push origin feature/AmazingFeature`)
 5. Abra um Pull Request
-
-## 📄 Licença
-
-Este projeto foi desenvolvido para as Escolas Estaduais de Educação Profissional (EEEPs) do Estado do Ceará.
-
-## 📞 Suporte
-
-Para dúvidas ou suporte técnico, entre em contato com a equipe de desenvolvimento da EEEP.
-
----
-
-**BiblioTech** - Democratizando o acesso ao conhecimento através da tecnologia 📚✨
