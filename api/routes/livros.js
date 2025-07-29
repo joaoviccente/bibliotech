@@ -101,7 +101,7 @@ router.post('/reservar', authMiddleware, isAluno, async (req, res) => {
         data: {
           id_aluno: parseInt(id_aluno),
           id_livro: parseInt(id_livro),
-          data_devolucao_prevista: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 dias
+          data_devolucao_prevista: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000), // 30 dias
           status: 'reservado'
         }
       });
