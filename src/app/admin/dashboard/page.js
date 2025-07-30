@@ -70,7 +70,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="bg-gradient-to-br from-green-600 to-green-700 min-h-screen">
+    <div className="bg-gradient-to-br from-green-600 to-green-700 min-h-[77vh]">
       {/* Header Section */}
       <div className="px-6 py-8">
         <div className="mb-8">
@@ -84,7 +84,7 @@ export default function AdminDashboard() {
       </div>
 
       {/* Main Content */}
-      <div className="bg-white rounded-t-3xl px-6 py-8 min-h-screen">
+      <div className="bg-white rounded-t-3xl px-6 py-8 min-h-[77vh]">
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
           {/* Total de Livros */}

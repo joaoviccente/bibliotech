@@ -255,7 +255,7 @@ export default function RankingPage() {
                 <select 
                   value={filtros.turma}
                   onChange={(e) => setFiltros(prev => ({ ...prev, turma: e.target.value }))}
-                  className="appearance-none px-4 py-2 text-sm font-medium text-gray-800 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500"
+                  className="appearance-none w-44 px-4 py-2 text-sm font-medium text-gray-800 bg-gray-100 border border-gray-300 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-green-500"
                 >
                   <option value="todos">Todas as Turmas</option>
                   <option value="Informática">Informática</option>
