@@ -34,22 +34,29 @@ Sistema web desenvolvido para automatizar o processo de aluguel de livros em bib
 
 ```
 src/
-├── app/                    # App Router (Next.js)
-│   ├── login/             # Página de login
-│   ├── cadastrar-senha/   # Cadastro de senha do aluno
-│   ├── dashboard/         # Dashboard do aluno
-│   ├── admin/             # Área administrativa
-│   └── layout.js          # Layout principal
-├── components/            # Componentes reutilizáveis
-│   ├── Layout.js          # Layout base
-│   ├── Loading.js         # Componentes de loading
-│   └── Alert.js           # Sistema de alertas
-└── services/              # Camada de serviços
-    ├── api.js             # Configuração do Axios
-    ├── alunos.service.js  # Serviços de alunos
-    ├── livros.service.js  # Serviços de livros
-    ├── auth.service.js    # Autenticação
-    └── pendencias.service.js # Pendências
+├── app/                       # App Router (Next.js)
+│   ├── login/                 # Página de login
+│   ├── cadastrar-senha/       # Cadastro de senha do aluno
+│   ├── dashboard/             # Dashboard do aluno
+│   ├── admin/                 # Área administrativa
+│   ├── livros/                # Página para buscar e reservar livros
+│   ├── meus-livros            # Página para gerenciar os livros do usuário
+│   ├── ranking                # Página de ranking dos estudantes mais leitores
+│   ├── layout.js              # Layout principal
+│   └── page.js                # Dashboard principal
+├── components/                # Componentes reutilizáveis
+│   ├── Layout.js              # Layout base
+│   ├── Loading.js             # Componentes de loading
+│   ├── Alert.js               # Sistema de alertas
+│   ├── Index.js               # Exportação centralizada de todos os componentes
+│   └── SimpleAlert.js         # Componente de notificação simples
+└── services/                  # Camada de serviços
+    ├── api.js                 # Configuração do Axios
+    ├── alunos.service.js      # Serviços de alunos
+    ├── livros.service.js      # Serviços de livros
+    ├── auth.service.js        # Autenticação
+    ├── index.service.js       # Exportação centralizada de todos os serviços
+    └── report.service.js      # Página de relatórios
 ```
 
 ## 🗃️ Banco de Dados
@@ -109,8 +116,8 @@ npm run dev
 - Senha: (configurar no banco)
 
 **Alunos de Teste:**
-- Matrícula: 2023001 (João Silva - Informática)
-- Matrícula: 2023002 (Maria Santos - Administração)
+- Matrícula: 2024001 (Milena Chaves - Informática)
+- Matrícula: 2024002 (João Vicente - Informática)
 
 ## 🎨 Design System
 
