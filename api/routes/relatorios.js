@@ -62,8 +62,6 @@ const formatDateTime = (date) => {
 // Gerar relatório de reservas em PDF
 router.get('/reservas', verifyAdmin, async (req, res) => {
   try {
-    console.log('📊 Gerando relatório de reservas...');
-
     // Buscar dados das reservas
     const reservasQuery = `
       SELECT 
@@ -191,7 +189,6 @@ router.get('/reservas', verifyAdmin, async (req, res) => {
     // Finalizar documento
     doc.end();
 
-    console.log('✅ Relatório de reservas gerado com sucesso');
 
   } catch (error) {
     console.error('❌ Erro ao gerar relatório de reservas:', error);
@@ -202,8 +199,6 @@ router.get('/reservas', verifyAdmin, async (req, res) => {
 // Gerar ranking de leitura em PDF
 router.get('/ranking', verifyAdmin, async (req, res) => {
   try {
-    console.log('🏆 Gerando ranking de leitura...');
-
     // Buscar ranking dos alunos
     const rankingQuery = `
       SELECT 
@@ -356,8 +351,6 @@ router.get('/ranking', verifyAdmin, async (req, res) => {
 
     // Finalizar documento
     doc.end();
-
-    console.log('✅ Ranking de leitura gerado com sucesso');
 
   } catch (error) {
     console.error('❌ Erro ao gerar ranking de leitura:', error);

@@ -10,7 +10,6 @@ const livrosService = {
    * @returns {Promise} Lista de livros
    */
   async buscarTodos() {
-    
     try {
       const response = await api.get('/livros/qtd-livros');
       return response.data;
@@ -21,7 +20,6 @@ const livrosService = {
   },
 
   async buscarPorQtd() {
-    
     try {
       const response = await api.get('/livros/qtd-livros/emprestados');
       return response.data;

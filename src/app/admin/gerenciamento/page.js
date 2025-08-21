@@ -20,7 +20,6 @@ export default function AdminGerenciamento() {
   const router = useRouter();
 
   const loadLivrosReservados = useCallback(async () => {
-    console.log('🔄 Iniciando carregamento de livros reservados...');
     try {
       const token = localStorage.getItem('bibliotech_token');
       console.log('🎫 Token:', token ? 'presente' : 'ausente');
@@ -31,9 +30,6 @@ export default function AdminGerenciamento() {
         }
       });
 
-      console.log('📡 Response status:', response.status);
-      console.log('📡 Response ok:', response.ok);
-
       if (!response.ok) {
         const errorText = await response.text();
         console.error('🚫 Erro na resposta:', errorText);
@@ -41,7 +37,6 @@ export default function AdminGerenciamento() {
       }
 
       const data = await response.json();
-      console.log('✅ Dados recebidos:', data);
       setLivrosReservados(data);
     } catch (error) {
       console.error('❌ Erro ao carregar livros reservados:', error);

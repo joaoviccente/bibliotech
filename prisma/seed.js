@@ -4,8 +4,6 @@ const bcrypt = require('bcryptjs');
 const prisma = new PrismaClient();
 
 async function main() {
-  console.log('🌱 Iniciando o seed do banco de dados...');
-
   try {
     // Limpeza dos dados existentes (opcional - descomente se quiser resetar)
     // await prisma.reservas.deleteMany();
@@ -15,7 +13,6 @@ async function main() {
     // await prisma.admin.deleteMany();
 
     // 1. ADMINISTRADORES/BIBLIOTECÁRIOS
-    console.log('📚 Criando administradores...');
     const adminPassword = await bcrypt.hash('admin123', 10);
     
     await prisma.admin.createMany({
@@ -29,7 +26,6 @@ async function main() {
     });
 
     // 2. ALUNOS (sem senha - irão criar via matrícula)
-    console.log('👨‍🎓 Criando alunos...');
     await prisma.aluno.createMany({
       data: [
         {
@@ -107,7 +103,6 @@ async function main() {
     });
 
     // 3. LIVROS
-    console.log('📖 Criando livros...');
     await prisma.livro.createMany({
       data: [
         // Tech
@@ -324,7 +319,6 @@ async function main() {
     });
 
     // 4. CRIAR ALGUMAS RESERVAS PARA DEMONSTRAÇÃO
-    console.log('📋 Criando reservas de exemplo...');
     
     // Buscar alguns alunos e livros para criar reservas
     const alunos = await prisma.aluno.findMany({ take: 5 });
@@ -368,25 +362,7 @@ async function main() {
         skipDuplicates: true,
       });
 
-      console.log('✅ Reservas de exemplo criadas!');
     }
-
-    console.log('🎉 Seed concluído com sucesso!');
-    console.log('\n📊 Dados criados:');
-    console.log('- Administradores: 2');
-    console.log('- Alunos: 10 (sem senha - irão criar via matrícula)');
-    console.log('- Livros: 23 (diversos gêneros)');
-    console.log('- Reservas de exemplo: 5');
-    console.log('\n🔑 Login de teste para administrador:');
-    console.log('- Usuario: admin');
-    console.log('- Senha: admin123');
-    console.log('\n👨‍🎓 Matrículas de alunos para teste:');
-    console.log('- 2024001 (Milena Chaves)');
-    console.log('- 2024002 (João Vicente)');
-    console.log('- 2024003 (Iago Farias)');
-    console.log('- 2024004 (Igor Farias)');
-    console.log('- 2024005 (André Melo)');
-
   } catch (error) {
     console.error('❌ Erro durante o seed:', error);
     throw error;

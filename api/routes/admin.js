@@ -6,7 +6,6 @@ const router = express.Router();
 
 // Middleware para verificar se é admin
 const verifyAdmin = async (req, res, next) => {
-  console.log('🔐 Verificando autenticação de admin...');
   try {
     const authHeader = req.headers.authorization;
     if (!authHeader) {
@@ -15,10 +14,8 @@ const verifyAdmin = async (req, res, next) => {
     }
 
     const token = authHeader.replace('Bearer ', '');
-    console.log('🎫 Token recebido:', token.substring(0, 20) + '...');
     
     const decoded = jwt.verify(token, process.env.JWT_SECRET || 'bibliotech_secret_key');
-    console.log('✅ Token decodificado:', { id: decoded.id, userType: decoded.userType });
 
     // Verificar se é admin
     const adminQuery = 'SELECT * FROM admin WHERE id_admin = $1';
@@ -29,7 +26,6 @@ const verifyAdmin = async (req, res, next) => {
       return res.status(403).json({ message: 'Acesso negado' });
     }
 
-    console.log('✅ Admin verificado com sucesso');
     req.user = decoded;
     next();
   } catch (error) {
@@ -40,7 +36,6 @@ const verifyAdmin = async (req, res, next) => {
 
 // Listar todas as reservas ativas (reservado e concluido)
 router.get('/reservas', verifyAdmin, async (req, res) => {
-  console.log('📚 Rota /admin/reservas chamada');
   try {
     const query = `
       SELECT 
@@ -60,9 +55,7 @@ router.get('/reservas', verifyAdmin, async (req, res) => {
       ORDER BY r.data_reserva DESC
     `;
 
-    console.log('🔍 Executando query para buscar reservas...');
     const result = await pool.query(query);
-    console.log(`✅ Encontradas ${result.rows.length} reservas`);
     res.json(result.rows);
   } catch (error) {
     console.error('❌ Erro ao buscar reservas:', error);
@@ -75,7 +68,6 @@ router.post('/devolver/:id', verifyAdmin, async (req, res) => {
   const client = await pool.connect();
   
   try {
-    console.log('📦 Iniciando processo de devolução para ID:', req.params.id);
     await client.query('BEGIN');
 
     const reservaId = req.params.id;
@@ -84,7 +76,6 @@ router.post('/devolver/:id', verifyAdmin, async (req, res) => {
     const reservaQuery = 'SELECT * FROM reservas WHERE id_reserva = $1 AND status IN ($2, $3)';
     const reservaResult = await client.query(reservaQuery, [reservaId, 'reservado', 'concluido']);
 
-    console.log(`🔍 Buscando reserva ${reservaId}... Encontradas: ${reservaResult.rows.length} reservas`);
 
     if (reservaResult.rows.length === 0) {
       console.log('❌ Reserva não encontrada ou já devolvida');
@@ -102,7 +93,6 @@ router.post('/devolver/:id', verifyAdmin, async (req, res) => {
       WHERE id_reserva = $1
     `;
     await client.query(updateReservaQuery, [reservaId]);
-    console.log('✅ Status da reserva atualizado para devolvido');
 
     // Incrementar quantidade disponível e decrementar quantidade alugada
     const updateLivroQuery = `
@@ -112,15 +102,12 @@ router.post('/devolver/:id', verifyAdmin, async (req, res) => {
       WHERE id_livro = $1
     `;
     await client.query(updateLivroQuery, [reserva.id_livro]);
-    console.log('✅ Quantidade disponível incrementada e quantidade alugada decrementada');
 
     // Remover da tabela de pendências se existir
     const removePendenciaQuery = 'DELETE FROM pendencias WHERE id_aluno = $1 AND id_livro = $2';
     await client.query(removePendenciaQuery, [reserva.id_aluno, reserva.id_livro]);
-    console.log('✅ Pendências removidas se existiam');
 
     await client.query('COMMIT');
-    console.log('✅ Devolução processada com sucesso');
     res.json({ message: 'Livro devolvido com sucesso' });
 
   } catch (error) {
@@ -134,9 +121,6 @@ router.post('/devolver/:id', verifyAdmin, async (req, res) => {
 
 // Cadastrar novo livro
 router.post('/livros', verifyAdmin, async (req, res) => {
-  console.log('📚 Rota POST /admin/livros chamada');
-  console.log('📄 Dados recebidos:', req.body);
-  
   try {
     const { nome, autor, genero, quantidade } = req.body;
 
@@ -165,7 +149,6 @@ router.post('/livros', verifyAdmin, async (req, res) => {
     `;
     
     const result = await pool.query(insertQuery, [nome, autor, genero, parseInt(quantidade)]);
-    console.log('✅ Livro cadastrado com sucesso:', result.rows[0]);
     
     res.status(201).json({ 
       message: 'Livro cadastrado com sucesso',
@@ -180,9 +163,6 @@ router.post('/livros', verifyAdmin, async (req, res) => {
 
 // Cadastrar novo aluno
 router.post('/alunos', verifyAdmin, async (req, res) => {
-  console.log('👨‍🎓 Rota POST /admin/alunos chamada');
-  console.log('📄 Dados recebidos:', req.body);
-  
   try {
     const { nome, matricula, curso } = req.body;
 
@@ -207,7 +187,6 @@ router.post('/alunos', verifyAdmin, async (req, res) => {
     `;
     
     const result = await pool.query(insertQuery, [nome, matricula, curso]);
-    console.log('✅ Aluno cadastrado com sucesso (senha será definida pelo próprio aluno):', result.rows[0]);
     
     res.status(201).json({ 
       message: 'Aluno cadastrado com sucesso. O aluno deve cadastrar sua senha posteriormente.',
